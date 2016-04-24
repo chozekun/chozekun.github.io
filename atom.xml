@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[chozekun's blog]]></title>
+  <link href="http://chozekun.github.io/atom.xml" rel="self"/>
+  <link href="http://chozekun.github.io/"/>
+  <updated>2016-04-25T03:10:00+09:00</updated>
+  <id>http://chozekun.github.io/</id>
+  <author>
+    <name><![CDATA[chozekun]]></name>
+    <email><![CDATA[chozekun@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
