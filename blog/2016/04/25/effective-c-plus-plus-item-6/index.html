@@ -1,0 +1,258 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[Effective C++] Item 6. 컴파일러가 만들어낸 함수가 필요 없으면 확실히 이들의 사용을 금해 버리자 | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[Effective C++] Item 6. 컴파일러가 만들어낸 함수가 필요 없으면 확실히 이들의 사용을 금해 버리자 객체 복사 막기 부동산과 관련된 다음과 같은 클래스가 있다고 가정해보자. 1
+class HomeForSale { ... }; 모든 자산은 세상에 하나 &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[Effective C++] Item 6. 컴파일러가 만들어낸 함수가 필요 없으면 확실히 이들의 사용을 금해 버리자</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:17:32+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <h3>객체 복사 막기</h3>
+
+<p>부동산과 관련된 다음과 같은 클래스가 있다고 가정해보자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">HomeForSale</span> <span class="p">{</span> <span class="p">...</span> <span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>모든 자산은 세상에 하나 밖에 없기 때문에 위 클래스로 만들어지는 객체는 복사가 불가능하게 해야한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">HomeForSale</span> <span class="n">home1</span><span class="p">;</span>
+</span><span class='line'><span class="n">HomeForSale</span> <span class="n">home2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">HomeForSale</span> <span class="nf">home3</span><span class="p">(</span><span class="n">home1</span><span class="p">);</span> <span class="c1">// home1을 복사하려 한다.</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">home1</span> <span class="o">=</span> <span class="n">home2</span><span class="p">;</span> <span class="c1">// home2를 복사하려 한다.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>일반적으로 어떠한 기능을 막고 싶다면, 그런 기능을 지원하는 함수를 선언하지 않으면 된다. 그러나 <strong>복사 생성자와 복사 대입 연산자는 컴파일러가 자동으로 만들어 내기 때문에</strong>(항목 5 참조) 이런 방법이 통하지 않는다.</p>
+
+<p>그렇다면 어떻게 해야 할까? 바로 컴파일러가 자동 생성하는 함수는 <code>public</code>이 되기 때문에 <code>private</code>으로 미리 만들어 버리면 된다. 일단 이들을 만들어 두기만 한다면, 컴파일러는 절대로 자동 생성을 하지 않는다.</p>
+
+<p>여기까지만 하면 될까? 아니다. 약간 부족하다. <strong><code>private</code> 멤버 함수는 그 클래스의 멤버 함수와 <code>friend</code> 함수가 호출할 수 있다</strong>는 사실이 떡하니 버티고 있다. 이것까지 막으려면 어떻게 하는 것이 좋을까? 바로 <strong>&lsquo;정의'를 일부로 하지 않으면 된다</strong>. 어쩌다 실수로 복사 생성자나 복사 대입 연산자를 호출했다면, 링크 시점에 '정의되지 않은 함수'라는 에러를 보게 될테니 말이다. 이 꼼수는 하나의 기법으로 굳어져 표준 라이브러리인 <code>iostream</code>의 <code>ios_base</code>, <code>basic_ios</code>등에서도 쓰이고 있다고 한다.</p>
+
+<p>자, 그럼 복사가 불가능한 버전의 <code>HomeForSale</code>을 보자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">HomeForSale</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">HomeForSale</span><span class="p">(</span><span class="k">const</span> <span class="n">HomeForSale</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">// 선언만 달랑 있다.</span>
+</span><span class='line'>    <span class="n">HomeForSale</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">HomeForSale</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">// 마찬가지</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>매개 변수 이름이 빠져 있지만, 이는 필수 사항이 아니며, 매개 변수 이름을 선언한다해도 사용할 일이 없으니 뺐다.</p>
+
+<p>이제 사용자가 <code>HomeForSale</code> 객체를 복사하려 한다면 컴파일 시점 에러를 보게 될것이고, 여러분이 깜빡하고 <code>HomeForSale</code>의 멤버 함수 혹은 <code>friend</code> 함수 안에서 객체를 복사하려 한다면 링크 시점 에러를 보게 될 것이다.</p>
+
+<h3>링크 시점 에러를 컴파일 시점 에러로 바꾸기</h3>
+
+<p>추가로 링크 시점 에러를 컴파일 시점 에러로 옮길 수도 있다. 에러는 나중에 발견되는 것보다 미리 발견되는 것이 더 좋기 때문에 이 방법을 추천한다. 바로 <strong>복사 불가 속성을 가지는 기반 클래스로부터 상속을 받는 방법</strong>이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Uncopyable</span> <span class="p">{</span>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span> <span class="c1">// 파생된 클래스에 대해</span>
+</span><span class='line'>    <span class="n">Uncopyable</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span> <span class="c1">// 생성과</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">Uncopyable</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span> <span class="c1">// 소멸을 허용</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Uncopyable</span><span class="p">(</span><span class="k">const</span> <span class="n">Uncopyable</span><span class="o">&amp;</span><span class="p">);</span> <span class="c1">// 하지만 복사는 방지</span>
+</span><span class='line'>    <span class="n">Uncopyable</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Uncopyable</span><span class="o">&amp;</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 <code>HomeForSale</code>을 다음과 같이 바꿔주자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">HomeForSale</span><span class="o">:</span> <span class="k">private</span> <span class="n">Uncopyable</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>HomeForSale</code> 객체의 복사를 시도할 때, 컴파일러는 복사 생성자 혹은 복사 대입 연산자를 생성하려고 할 것이다. 그러나 <strong>컴파일러가 자동 생성한 복사 생성자나 복사 대입 연산자는 기반 클래스의 복사 생성자나 복사 대입 연산자를 먼저 호출해야 하지만</strong>,  해당 함수들이 <code>private</code>으로 선언되어 있기 때문에 생성이 되지 않으며, 컴파일 에러가 발생한다.</p>
+
+<p>여기서 기술적으로 미묘한 몇가지 사항을 짚고 넘어가자면, 우선 <code>Uncopyable</code>로부터의 상속은 <code>public</code> 상속일 필요가 없다(항목 32 및 39 참조). 그리고 <code>Uncopyable</code>의 소멸자는 가상 소멸자가 아니어도 된다(항목 7 참조). 또한 <code>Uncopyable</code> 클래스는 데이터 멤버가 전혀 없기 때문에 <strong>공백 기반클래스 최적화(EBO: Empty Base Optimization)</strong>(항목 39 참조) 기법을 쓸 여지가 생기는데, <code>Uncopyable</code>은 기반 클래스이기 때문에 이 기법을 사용하면 다중 상속(항목 40 참조)으로 갈 가능성이 있다. 그러나, 다중 상속시에는 EBO 기법이 돌아가지 못할 때가 종종 있으니 이런 미묘한 부분은 대강 무시하고 넘어가자. 또한 <em>부스트(boost)</em> 라이브러리에는 <code>Uncopyable</code>와 똑같은 구실을 하는 <code>noncopyable</code>이라는 클래스가 있는데, 이 클래스를 사용해도 된다.</p>
+
+<blockquote><ul>
+<li>컴파일러에서 자동으로 제공하는 기능을 허용치 않으려면, 대응되는 멤버 함수를 <code>private</code>으로 선언한 후에 구현은 하지 않은 채로 두자. <code>Uncopyable</code>과 비슷한 기반 클래스를 상속해서 사용하는 것도 한 방법이다.</li>
+</ul>
+</blockquote>
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/effective-c-plus-plus/'>effective c++</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/effective-c-plus-plus-item-6/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-6/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-6/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

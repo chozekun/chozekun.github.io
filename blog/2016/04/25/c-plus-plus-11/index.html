@@ -1,0 +1,689 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[C++ 11] | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[C++ 11] C++11 설계 목표 C++ 핵심 언어 확장 핵심 언어 런타임 성능 향상 우측값 참조 및 이동 생성자 constexpr – 일반화된 상수 표현식 Plain Old Data(POD) 정의 변경 핵심 언어 빌드 타임 성능 향상 extern 템플릿 핵심 &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[C++ 11]</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:29:25+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <h2>C++11</h2>
+
+<ol>
+    <li>설계 목표</li>
+    <li>C++ 핵심 언어 확장</li>
+    <ol>
+        <li>핵심 언어 런타임 성능 향상</li>
+        <ol>
+            <li><b><u>우측값 참조 및 이동 생성자</u></b></li>
+            <li><b><code>constexpr</code> – 일반화된 상수 표현식</b></li>
+            <li>Plain Old Data(POD) 정의 변경</li>
+        </ol>
+        <li>핵심 언어 빌드 타임 성능 향상</li>
+        <ol>
+            <li><b><code>extern</code> 템플릿</b></li>
+        </ol>
+        <li>핵심 언어 사용성 개선</li>
+        <ol>
+            <li><b>이니셜라이저 목록 <code>std::initializer_list&lt;T&gt;</code></b></li>
+            <li><b>단일 형태 초기화 <code>{}</code></b></li>
+            <li><b>타입 추론 <code>auto</code>, <code>decltype</code></b></li>
+            <li><b>범위 기반 <code>for</code> 반복문</b></li>
+            <li><b>람다 함수 및 표현식 <code>[]() -> T {}</b></li>
+            <li><b>선택적 함수 문법 (반환 타입 지정)<code>auto () -> T {}</code></b></li>
+            <li><b>생성자 위임</b></li>
+            <li><b>명시적 <code>override</code> 및 <code>final</code></b></li>
+            <li><b><code>nullptr</code></b></li>
+            <li><b>강력한 형식의 열거형 <code>enum class</code></b></li>
+            <li><b>오른쪽 꺽쇠 괄호 <code>>></code></b></li>
+            <li>명시적 변환 연산자</li>
+            <li>템플릿 별칭</li>
+            <li>무제한 공용 구조체</li>
+        </ol>
+        <li>핵심 언어 기능성 개선</li>
+        <ol>
+            <li>Variadic 템플릿</li>
+            <li>새로운 문자열 리터럴</li>
+            <li>사용자 정의 리터럴</li>
+            <li>멀티스레딩 메모리 모델</li>
+            <li>스레드 로컬 저장소</li>
+            <li><b>특수 멤버 함수에 붙는 <code>default</code> 및 <code>delete</code></b></li>
+            <li><code>long long int</code> 타입</li>
+            <li><code>static_assert</code></li>
+            <li>확장된 <code>sizeof</code></li>
+            <li>객체 정렬 조절 및 확인</li>
+            <li>쓰레기 수집기 구현 허가</li>
+            <li>특성 (Attributes)</li>
+        </ol>
+    </ol>
+    <li>C++ 표준 라이브러리 변경</li>
+    <ol>
+        <li><b>표준 라이브러리 컴포넌트 업그레이드</b></li>
+        <li>스레드 프로그래밍 편의</li>
+        <li><b>튜플 타입</b></li>
+        <li><b>해시 테이블</b></li>
+        <li><b>정규 표현식</b></li>
+        <li><b>다목적 스마트 포인터</b></li>
+        <li>확장 가능한 랜덤 수 기능</li>
+        <li>래퍼 참조</li>
+        <li><b>함수 객체를 위한 다형성 래퍼</b></li>
+        <li>메타프로그래밍을 위한 타입 trait</li>
+        <li>함수 객체 반환 타입 계산을 위한 단일 형식 메소드</li>
+    </ol>
+</ol>
+
+
+<h3><code>constexpr</code></h3>
+
+<p>상수 표현식의 사용은 컴파일러에게 최적화의 기회를 준다. 컴파일러가 <code>3+4</code>와 같은 상수 표현식을 만나면 미리 계산해 놓고, 프로그램 내에 하드 코딩해 놓는다.</p>
+
+<p>C++ 명세에서는 상수 표현식이어야만 하는 곳들이 몇 군데 있는데, 바로 배열의 정의와 열거형 선언이 그러하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="nf">get_five</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="mi">5</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">some_value</span><span class="p">[</span><span class="n">get_five</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">];</span> <span class="c1">// Create an array of 12 integers. Ill-formed C++</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위에서 <code>get_five</code> 는 항상 <code>5</code>를 반환하여 의미론적으로 상수와 다를 바 없지만, 컴파일러는 이를 알 길이 없기 때문에 컴파일을 거부한다.</p>
+
+<p>C++11에서는 다음과 같은 문법이 가능하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">constexpr</span> <span class="kt">int</span> <span class="nf">get_five</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="mi">5</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">some_value</span><span class="p">[</span><span class="n">get_five</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">];</span> <span class="c1">// Create an array of 12 integers. Legal C++11</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>컴파일러는 <code>get_five</code>가 컴파일 타임 상수임을 이해하고, 실제로 컴파일 타임 상수인지를 확인하게 된다.</p>
+
+<p><code>constexpr</code>을 함수에 사용하게 되면 몇가지 제약 사항이 생긴다.
+첫째로, <code>void</code>가 아닌 반환 타입을 가져야 한다. 둘째로, 함수 본체에서 변수나 새로운 타입을 정의할 수 없다. 셋째로, 함수 본체는 선언, null 문장만이 존재해야 하며, 딱 하나의 return 문만 가져야 한다.</p>
+
+<p>C++11 이전에 변수의 값은 <code>const</code>로 선언되고, 상수 표현식으로 된 이니셜라이저를 가지며, 정수형 혹은 열거형 타입이어야만 상수 표현식으로 사용될 수 있었다. C++11에서는 <code>constexpr</code>가 붙으면, 정수형 혹은 열거형 타입이어야만 한다는 제약을 없앴다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">constexpr</span> <span class="kt">double</span> <span class="n">earth_gravitational_acceleration</span> <span class="o">=</span> <span class="mf">9.8</span><span class="p">;</span>
+</span><span class='line'><span class="k">constexpr</span> <span class="kt">double</span> <span class="n">moon_gravitational_acceleration</span> <span class="o">=</span> <span class="n">earth_gravitational_acceleration</span> <span class="o">/</span> <span class="mf">6.0</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><code>extern</code> 템플릿</h3>
+
+<p>C++03에서는 하나의 번역 단위에서 완전하게 지정된 템플릿에 도달할 때마다 템플릿을 반드시 인스턴스화 해야 했다. 만약 똑같은 템플릿이 여러 번역 단위에서 인스턴스화 된다면 컴파일 타임이 상당히 길어질 수 있다. C++03에서 이를 막을 수 있는 방법이 없었기에, C++11에서는 새로이 extern 템플릿 선언을 도입하였는데, extern 데이터 선언과 비슷하다.
+C++03에서는 아래의 문법으로 컴파일러에게 템플릿 인스턴스화를 강제할 수 있었는데:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span> <span class="k">class</span> <span class="nc">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>C++11는 다음과 같은 문법을 제공한다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">extern</span> <span class="k">template</span> <span class="k">class</span> <span class="nc">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">MyClass</span><span class="o">&gt;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이는 컴파일러에게 이 번역단위에서 템플릿을 인스턴스화 <strong>하지 말 것</strong>을 알려준다.</p>
+
+<h3>이니셜라이저 목록</h3>
+
+<p>C++03는 C로부터 이니셜라이저 목록을 계승받았다. 구조체나 배열을 멤버가 정의된 순서대로 중괄호로 쌓여진 목록으로 초기화 한다. 이니셜라이저 목록은 재귀적으로도 사용할 수 있어서, 다음과 같이도 가능하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">struct</span> <span class="n">Object</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">first</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">second</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Object</span> <span class="n">scalar</span> <span class="o">=</span> <span class="p">{</span><span class="mf">0.43f</span><span class="p">,</span> <span class="mi">10</span><span class="p">};</span> <span class="c1">//One Object, with first=0.43f and second=10</span>
+</span><span class='line'><span class="n">Object</span> <span class="n">anArray</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span><span class="mf">13.4f</span><span class="p">,</span> <span class="mi">3</span><span class="p">},</span> <span class="p">{</span><span class="mf">43.28f</span><span class="p">,</span> <span class="mi">29</span><span class="p">},</span> <span class="p">{</span><span class="mf">5.934f</span><span class="p">,</span> <span class="mi">17</span><span class="p">}</span> <span class="p">};</span> <span class="c1">//An array of three Objects</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 방법은 정적 리스트나 구조체를 어떤 값으로 초기화할 때 아주 유용하다. C++는 생성자를 통해 객체를 초기화할 수도 있는데, 이는 이니셜라이저 목록만큼 편리하지는 않다. 하지만, C++03는 Plain Old Data (POD)에 대해서만 이니셜라이저 목록을 사용할 수 있다; C++11는 <code>std::vector</code>와 같은 표준 컨테이너 뿐만 아니라 모든 클래스에서도 이니셜라이저 목록을 사용할 수 있게 해준다.
+<code>std::initializer_list</code>를 인자로 갖는 생성자나 함수를 만들어 두면, 이니셜라이저 목록을 인자로 받을 수 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">SequenceClass</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">SequenceClass</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">list</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위와 같이 만들면, 다음과 같이 사용할 수 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">SequenceClass</span> <span class="n">some_var</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이러한 생성자를 이니셜라이저 목록 생성자라고 부르며, 이런 생성자를 갖는 클래스는 단일 형태 초기화를 사용할 수 있게 된다. (하단 참조)
+<code>std::initializer_list&lt;&gt;</code> 클래스는 일급 C++11 표준 라이브러리 타입이며, C++11 컴파일러에서 <code>{}</code> 문법을 통해서만 정적으로 생성할 수 있다. 이 목록은 한번 생성되면 복사는 가능하지만, <code>copy-by-reference</code> 방식이다. 이니셜라이저 목록은 상수이므로 일단 한번 생성되면 값을 바꿀 수 없다.</p>
+
+<p>이니셜라이저 목록이 타입이기 때문에, 클래스 생성자 뿐만 아니라 일반 함수에서도 쓰일 수 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">void</span> <span class="nf">function_name</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span> <span class="n">list</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">function_name</span><span class="p">({</span><span class="mf">1.0f</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.45f</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4f</span><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>또한 표준 컨테이너는 다음과 같은 방법으로 초기화될 수도 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&quot;xyzzy&quot;</span><span class="p">,</span> <span class="s">&quot;plugh&quot;</span><span class="p">,</span> <span class="s">&quot;abracadabra&quot;</span> <span class="p">};</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">({</span> <span class="s">&quot;xyzzy&quot;</span><span class="p">,</span> <span class="s">&quot;plugh&quot;</span><span class="p">,</span> <span class="s">&quot;abracadabra&quot;</span> <span class="p">});</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">{</span> <span class="s">&quot;xyzzy&quot;</span><span class="p">,</span> <span class="s">&quot;plugh&quot;</span><span class="p">,</span> <span class="s">&quot;abracadabra&quot;</span> <span class="p">};</span> <span class="c1">// see &quot;Uniform initialization&quot; below</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>단일 형태 초기화</h3>
+
+<p>C++03는 초기화에 있어 몇가지 문제점을 가지고 있다. 초기화를 위한 여러가지 방법이 존재하며, 때때로 교환했을 때 다른 결과를 초래하기도 한다. 전통적인 초기화 문법은 함수 선언같이 보이므로, 컴파일러는 이 문법을 파싱하기 위해 추가적인 단계가 필요하다(파싱이 어려워진다는 뜻).
+C++11 어느 객체에서나 동작하는 완전한 단일 형태의 초기화 문법을 제공한다. 이니셜라이저 목록 문법을 확장한 것이다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">struct</span> <span class="n">BasicStruct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">double</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">AltStruct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">AltStruct</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">double</span> <span class="n">y</span><span class="p">)</span> <span class="o">:</span> <span class="n">x_</span><span class="p">{</span><span class="n">x</span><span class="p">},</span> <span class="n">y_</span><span class="p">{</span><span class="n">y</span><span class="p">}</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">x_</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">double</span> <span class="n">y_</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">BasicStruct</span> <span class="n">var1</span><span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">};</span>
+</span><span class='line'><span class="n">AltStruct</span> <span class="n">var2</span><span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.3</span><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 코드는 모두가 예상한대로 동작할 것이다.</p>
+
+<p>또한 다음과 같이 쓸 수도 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">struct</span> <span class="n">IdString</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">identifier</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">IdString</span> <span class="nf">get_string</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">};</span> <span class="c1">// 굳이 타입을 적어주지 않아도 됨.</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>단일 형태 초기화는 생성자 문법을 대체하지는 않는다. 생성자 문법이 때때로 필요하기 때문이다. 예를 들어보자. 만약 클래스가 이니셜라이저 목록 생성자를 가지고 있다면, (<code>TypeName(initializer_list&lt;SomeType&gt;);</code>), 다른 형태의 생성자보다 우선시된다. C++11의 <code>std::vector</code>는 이니셜라이저 목록 생성자를 가지고 있다. 그러므로 아래 코드는:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">the_vec</span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이니셜라이저 목록 생성자를 호출할 것이다. 벡터는 원소 <code>4</code> 한 개를 갖게 될 것이다. 벡터의 초기 사이즈를 결정하는 생성자 호출이 아니란 말이다. 벡터의 초기 사이즈를 지정하고 싶다면, 일반적인 생성자 문법으로 벡터를 생성해야 한다.</p>
+
+<h3>타입 추론</h3>
+
+<p>C++03 (그리고 C)에서 변수를 사용하려면, 타입이 명시적으로 지정되어야 한다. 반면, 템플릿 타입과 템플릿 메타프로그래밍 테크닉의 출현과 함께 무언가의 타입(특히 잘 정의된 함수의 반환 값)은 쉽게 표현되지 않을 수 있다. 따라서, 중간 값을 변수에 담기는 어려우며, 아마 주어진 메타프로그래밍 라이브러리 내부에 대한 지식을 알아야 할지도 모른다.
+C++11에서는 두가지 방법으로 이를 완화시킬 수 있다.
+첫째로, 명시적 초기화와 함께 정의된 변수에 <code>auto</code> 키워드를 사용할 수 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">auto</span> <span class="n">some_strange_callable_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">some_function</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">some_object</span><span class="p">);</span>
+</span><span class='line'><span class="k">auto</span> <span class="n">other_variable</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>some_strange_callable_type</code>의 타입은 <code>std::bind</code> 템플릿 함수가 반환하는 타입으로 정해진다. 사용자에게는 쉽지 않은 타입 결정을, 컴파일러는 절차적인 의미론 분석을 통해 쉽게 결정할 수 있다.
+<code>other_variable</code>는 사용자에게나 컴파일러에게나 쉽게 타입이 결정된다. 이 타입은 <code>int</code>이며 정수 리터럴 <code>5</code>과 같은 타입이다.
+둘째로, <code>decltype</code> 키워드로 표현식의 타입을 컴파일 타임에 결정할 수 있도록 한다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="n">some_int</span><span class="p">;</span>
+</span><span class='line'><span class="k">decltype</span><span class="p">(</span><span class="n">some_int</span><span class="p">)</span> <span class="n">other_integer_variable</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>auto</code> 변수의 타입은 컴파일러만 알고 있기 때문에 <code>decltype</code> 키워드는 <code>auto</code> 키워드와 사용될 때 더욱 유용하다. 연산자 오버로딩이나 특화된 타입을 많이 사용하는 표현식에서 <code>decltype</code>이 매우 유용하게 사용될 수 있다.
+<code>auto</code>는 또한 코드의 장황함을 줄여주는데 도움을 준다. 예를 들어, 다음과 같이 쓰는 대신</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span> <span class="n">itr</span> <span class="o">!=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">cend</span><span class="p">();</span> <span class="o">++</span><span class="n">itr</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>다음과 같이 줄여쓸 수 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">itr</span> <span class="o">=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span> <span class="n">itr</span> <span class="o">!=</span> <span class="n">myvec</span><span class="p">.</span><span class="n">cend</span><span class="p">();</span> <span class="o">++</span><span class="n">itr</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>&ldquo;myvec"은 begin/end 반복자가 구현되어 있기 때문에 다음과 같이 좀더 줄여 쓸 수 있다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">x</span> <span class="p">:</span> <span class="n">myvec</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>컨테이너를 중첩시키고 <code>typedef</code>를 통한 코드의 양 줄이기를 썼을 때 더욱 커진다(? 해석 불가).</p>
+
+<p><code>decltype</code>에 의해 지정된 타입은 <code>auto</code>에 의해 추론된 타입과 다를 수도 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">auto</span> <span class="n">a</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>        <span class="c1">// a has type int</span>
+</span><span class='line'>    <span class="k">decltype</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// b has type const int&amp;, the return type of</span>
+</span><span class='line'>                          <span class="c1">//   std::vector&lt;int&gt;::operator[](size_type) const</span>
+</span><span class='line'>    <span class="k">auto</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// c has type int</span>
+</span><span class='line'>    <span class="k">auto</span> <span class="n">d</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>           <span class="c1">// d has type int</span>
+</span><span class='line'>    <span class="k">decltype</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="n">e</span><span class="p">;</span>        <span class="c1">// e has type int, the type of the entity named by c</span>
+</span><span class='line'>    <span class="k">decltype</span><span class="p">((</span><span class="n">c</span><span class="p">))</span> <span class="n">f</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// f has type int&amp;, because (c) is an lvalue</span>
+</span><span class='line'>    <span class="k">decltype</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="n">g</span><span class="p">;</span>        <span class="c1">// g has type int, because 0 is an rvalue</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>범위 기반 <code>for</code> 반복문</h3>
+
+<p>C++11는 요소의 범위를 쉽게 순회할 수 있는 <code>for</code> 문법을 확장하였다:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">int</span> <span class="n">my_array</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">};</span>
+</span><span class='line'><span class="c1">// double the value of each element in my_array:</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="nl">x</span> <span class="p">:</span> <span class="n">my_array</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">x</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">// similar but also using type inference for array elements</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">x</span> <span class="p">:</span> <span class="n">my_array</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">x</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 형식의 <code>for</code>문은 &ldquo;범위 기반 for"로 불리며(주로 다른 언어에서는 "foreach"라고 불림), 리스트의 각 요소를 순회한다. C-스타일의 배열, 이니셜라이저 목록, 또는 반복자를 반환하는 <code>begin()</code> 과 <code>end()</code> 함수가 정의된 모든 타입에서 동작하며, 또한 begin/end 쌍을 가지고 있는 모든 표준 컨테이너에서도 잘 동작한다.</p>
+
+<h3>람다 함수 및 표현식</h3>
+
+<p>C++11은 람다라고 불리는 익명 함수를 만들 수 있다. 다음과 같은 형태이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="p">[</span><span class="n">capture</span><span class="p">](</span><span class="n">parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">return_type</span> <span class="p">{</span> <span class="n">function_body</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>다음은 람다 함수의 예:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">int</span> <span class="p">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>C++11은 클로져도 지원한다. 클로져는 람다 표현식에서 대괄호인 <code>[</code>와 <code>]</code> 사이에 정의된다. 값에 의한 캡쳐와 참조에 의한 캡쳐를 지원한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="p">[]</span>        <span class="c1">//no variables defined. Attempting to use any external variables in the lambda is an error.</span>
+</span><span class='line'><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">y</span><span class="p">]</span>   <span class="c1">//x is captured by value, y is captured by reference</span>
+</span><span class='line'><span class="p">[</span><span class="o">&amp;</span><span class="p">]</span>       <span class="c1">//any external variable is implicitly captured by reference if used</span>
+</span><span class='line'><span class="p">[</span><span class="o">=</span><span class="p">]</span>       <span class="c1">//any external variable is implicitly captured by value if used</span>
+</span><span class='line'><span class="p">[</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>    <span class="c1">//x is explicitly captured by value. Other variables will be captured by reference</span>
+</span><span class='line'><span class="p">[</span><span class="o">=</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">z</span><span class="p">]</span>   <span class="c1">//z is explicitly captured by reference. Other variables will be captured by value</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>값에 의한 캡쳐 변수는 기본적으로 상수이다. 매개 변수 목록 다음에 <code>mutable</code> 키워드를 추가하면 매개 변수 목록이 비상수가 된다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="p">[</span><span class="n">capture</span><span class="p">](</span><span class="n">parameters</span><span class="p">)</span> <span class="k">mutable</span> <span class="o">-&gt;</span> <span class="n">return_type</span> <span class="p">{</span> <span class="n">function_body</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>다음 두 예시는 람다 표현식의 사용법을 보여준다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">some_list</span><span class="p">{</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="n">some_list</span><span class="p">),</span> <span class="n">end</span><span class="p">(</span><span class="n">some_list</span><span class="p">),</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">total</span><span class="p">](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">total</span> <span class="o">+=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 예는 벡터에 들어있는 모든 요소의 합계를 구한다. <code>total</code> 변수가 람다 함수의 내부로 캡쳐되어 사용된다. <code>total</code> 변수는 스택 변수에 대한 참조이므로 값을 변경할 수 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">some_list</span><span class="p">{</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="n">some_list</span><span class="p">),</span> <span class="n">end</span><span class="p">(</span><span class="n">some_list</span><span class="p">),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="k">this</span><span class="p">](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">total</span> <span class="o">+=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">value</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">some_func</span><span class="p">();</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>total</code>은 참조로, <code>value</code>는 복사로 전달했다.
+<code>this</code>의 캡쳐는 특별한 의미를 갖는데, 참조로는 캡쳐할 수 없고 값으로만 캡쳐할 수 있다. <code>this</code>는 람다를 감싸고 있는 가장 가까운 함수가 비정적 멤버 함수일 때에만 캡쳐할 수 있다. 람다는 protected/private 멤버에 대해 람다가 정의된 멤버 함수와 똑같은 접근 권한을 가진다.
+If this is captured, either explicitly or implicitly, then the scope of the enclosed class members is also tested. Accessing members of this does not require explicit use of this-> syntax.
+The specific internal implementation can vary, but the expectation is that a lambda function that captures everything by reference will store the actual stack pointer of the function it is created in, rather than individual references to stack variables. However, because most lambda functions are small and local in scope, they are likely candidates for inlining, and thus will not need any additional storage for references.
+If a closure object containing references to local variables is invoked after the innermost block scope of its creation, the behaviour is undefined.
+Lambda functions are function objects of an implementation-dependent type; this type&rsquo;s name is only available to the compiler. If the user wishes to take a lambda function as a parameter, the type must be a template type, or they must create a std::function or a similar object to capture the lambda value. The use of the auto keyword can help store the lambda function,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">auto</span> <span class="n">my_lambda_func</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/*...*/</span> <span class="p">};</span>
+</span><span class='line'><span class="k">auto</span> <span class="n">my_onheap_lambda_func</span> <span class="o">=</span> <span class="k">new</span> <span class="k">auto</span><span class="p">([</span><span class="o">=</span><span class="p">](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/*...*/</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>다음은 람다 함수를 변수, 배열, 벡터에 저장하고, 함수의 매개 변수로 람다를 전달하는 예시이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;functional&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;vector&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">double</span> <span class="nf">eval</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">function</span> <span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">f</span><span class="p">,</span> <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">f0</span>    <span class="o">=</span> <span class="p">[](</span><span class="kt">double</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="mi">1</span><span class="p">;};</span>
+</span><span class='line'>    <span class="k">auto</span>                          <span class="n">f1</span>    <span class="o">=</span> <span class="p">[](</span><span class="kt">double</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">x</span><span class="p">;};</span>
+</span><span class='line'>    <span class="k">decltype</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span>                  <span class="n">fa</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">f0</span><span class="p">,</span><span class="n">f1</span><span class="p">,[](</span><span class="kt">double</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">;}};</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span><span class="o">&gt;</span>     <span class="n">fv</span>    <span class="o">=</span> <span class="p">{</span><span class="n">f0</span><span class="p">,</span><span class="n">f1</span><span class="p">};</span>
+</span><span class='line'>    <span class="n">fv</span><span class="p">.</span><span class="n">push_back</span>                  <span class="p">([](</span><span class="kt">double</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">;});</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">fv</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">fv</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">fa</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">f</span> <span class="p">:</span> <span class="n">fv</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">f</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span><span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">f</span> <span class="p">:</span> <span class="n">fa</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">f</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">eval</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">eval</span><span class="p">([](</span><span class="kt">double</span> <span class="n">x</span><span class="p">){</span><span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">;})</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>빈 캡쳐 리스트로 된 람다 표현식은 같은 타입의 함수 포인터로 암묵적으로 변경할 수 있다. 따라서 다음이 가능하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">auto</span> <span class="n">a_lambda_func</span> <span class="o">=</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/*...*/</span> <span class="p">};</span>
+</span><span class='line'><span class="kt">void</span> <span class="p">(</span><span class="o">*</span> <span class="n">func_ptr</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span> <span class="o">=</span> <span class="n">a_lambda_func</span><span class="p">;</span>
+</span><span class='line'><span class="n">func_ptr</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="c1">//calls the lambda.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/c-plus-plus-11/'>c++ 11</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/c-plus-plus-11/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/c-plus-plus-11/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/c-plus-plus-11/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

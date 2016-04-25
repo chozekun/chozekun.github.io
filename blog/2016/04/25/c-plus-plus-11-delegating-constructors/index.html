@@ -1,0 +1,354 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[C++ 11] Delegating Constructors | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[C++ 11] Delegating Constructors 생성자 위임 (C++11) 아래와 같은 클래스를 가정해보자. 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+class Foo {
+public: Foo(char x) : _x(x) { } Foo(char x, int &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[C++ 11] Delegating Constructors</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:29:10+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <h3>생성자 위임 (C++11)</h3>
+
+<p>아래와 같은 클래스를 가정해보자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">)</span> <span class="o">:</span> <span class="n">_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="o">:</span> <span class="n">_x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">_x</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">_y</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>여기에서는 데이터 멤버 수가 적기 때문에 크게 문제될 것이 없어 보이지만, 데이터 멤버가 늘어나면 날수록 멤버 초기화 리스트에 보이는 멤버들 수는 기하 급수적으로 늘어날 것이다.</p>
+
+<p>C++03 에서는 아래와 같은 방법들로 이를 해결했었다.</p>
+
+<ol>
+<li>데이터 멤버에 기본 값을 넣을 수 있는 경우에. 기본 인자를 설정하여 여러 버전의 생성자를 만드는 방법</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">:</span> <span class="n">_x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span> <span class="c1">// Foo(char)와 Foo(char, int)</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'> <span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>대입으로도 초기화가 가능한 데이터 멤버들을 별도의 함수로 빼내어(대게 <code>private</code> 함수) 초기화를 시키는 방법</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+</span><span class='line'> <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>   <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'> <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>   <span class="p">...</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">construct</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">);</span>
+</span><span class='line'> <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">Foo</span><span class="o">::</span><span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">)</span>
+</span><span class='line'> <span class="p">{</span>
+</span><span class='line'>     <span class="n">construct</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>     <span class="p">...</span>
+</span><span class='line'> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">Foo</span><span class="o">::</span><span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+</span><span class='line'> <span class="p">{</span>
+</span><span class='line'>     <span class="n">construct</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+</span><span class='line'>     <span class="p">...</span>
+</span><span class='line'> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'> <span class="kt">void</span> <span class="n">Foo</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+</span><span class='line'> <span class="p">{</span>
+</span><span class='line'>     <span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span><span class='line'>     <span class="n">_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+</span><span class='line'>     <span class="p">...</span>
+</span><span class='line'> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>1번의 방법이 깔끔하긴 하지만 인자의 순서에 신경을 써야 한다는 단점이 있다. 기본 인자들은 마지막에 넣어주어야 하기 때문이다.</p>
+
+<p>2번은 코드 중복을 피할 수는 있지만, 효율성을 잃게 된다.</p>
+
+<p>C++11에서는 아주 멋지게 이를 해결할 방법이 존재한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="o">:</span> <span class="n">_x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">_y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">)</span> <span class="o">:</span> <span class="n">Foo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span> <span class="c1">// 생성자 위임</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위처럼 생성자 위임을 통해 다른 버전의 생성자를 호출하는 것이 가능해진다.</p>
+
+<p>또한 아래와 같은 방법도 가능하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Foo</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Foo</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>    <span class="k">explicit</span> <span class="n">Foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">x</span><span class="p">)</span> <span class="o">:</span> <span class="n">_x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">_x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>기본 생성자를 호출하는 경우에도 <code>_x</code>는 <code>0</code>으로 초기화될 것이다. 또한 <code>Foo(char)</code> 생성자는 효율성을 위해 <code>_x</code>의 초기화를 두번 수행하지 않고 한번만 수행한다. (<code>Foo(char)</code> 생성자에 <code>explicit</code> 키워드를 붙이는 이유는 [Effective C++ 항목 24] 참조)</p>
+
+<p>기본 클래스의 생성자로부터 생성자를 위임하고자 할 경우에는 다음과 같은 방법을 사용할 수도 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">BaseClass</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">BaseClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">DerivedClass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseClass</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">using</span> <span class="n">BaseClass</span><span class="o">::</span><span class="n">BaseClass</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>using</code> 키워드를 사용하여 <code>DerivedClass</code>에서 <code>BaseClass</code>의 생성자를 사용하고 있다.</p>
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/c-plus-plus-11/'>c++ 11</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/c-plus-plus-11-delegating-constructors/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/c-plus-plus-11-delegating-constructors/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/c-plus-plus-11-delegating-constructors/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

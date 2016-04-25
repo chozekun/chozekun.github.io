@@ -1,0 +1,318 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[Effective C++] Item 5. C++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자 | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[Effective C++] Item 5. C++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자 컴파일러가 자동으로 만들어내는 함수 비어 있는 클래스일지라도 컴파일러가 저절로 선언해 주는 멤버 함수들이 있다. 바로 복사 생성자, 복사 대입 연산자, 그리고 &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[Effective C++] Item 5. C++가 은근슬쩍 만들어 호출해 버리는 함수들에 촉각을 세우자</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:17:31+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <h3>컴파일러가 자동으로 만들어내는 함수</h3>
+
+<p>비어 있는 클래스일지라도 컴파일러가 저절로 선언해 주는 멤버 함수들이 있다. 바로 <strong>복사 생성자</strong>, <strong>복사 대입 연산자</strong>, 그리고 <strong>소멸자</strong>이다. 만약 생성자 조차도 선언되어 있지 않으면 <strong>기본 생성자</strong>까지 컴파일러가 만들어 낸다. 이들은 모두 기본형으로 <code>public</code>이며 <code>inline</code> 함수로 만들어 진다(항목 30 참조).</p>
+
+<p>따라서 다음과 같은 클래스는</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Empty</span> <span class="p">{</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Empty</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">Empty</span><span class="p">()</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>                            <span class="c1">// 기본 생성자</span>
+</span><span class='line'>    <span class="n">Empty</span><span class="p">(</span><span class="k">const</span> <span class="n">Empty</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>            <span class="c1">// 복사 생성자</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">Empty</span><span class="p">()</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>                           <span class="c1">// 소멸자</span>
+</span><span class='line'>    <span class="n">Empty</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Empty</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span> <span class="c1">// 복사 대입 연산자</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 코드와 크게 다르지 않다. 그렇다고 컴파일러가 무턱대고 만들어 내는 것은 아니고, 아래와 같이 사용될 때 필요에 의해 만들어낸다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">Empty</span> <span class="n">e1</span><span class="p">;</span> <span class="c1">// 기본 생성자, 소멸자</span>
+</span><span class='line'><span class="n">Empty</span> <span class="nf">e2</span><span class="p">(</span><span class="n">e1</span><span class="p">);</span> <span class="c1">// 복사 생성자</span>
+</span><span class='line'><span class="n">e2</span> <span class="o">=</span> <span class="n">e1</span><span class="p">;</span> <span class="c1">// 복사 대입 연산자</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>기본 생성자/소멸자가 생성될 때에는 기반 클래스 및 비정적 데이터 멤버의 생성자/소멸자가 자동으로 호출된다. 이 때, <strong>이 클래스가 상속한 기반 클래스의 소멸자가 가상 함수로 선언되어 있지 않으면, 비가상 소멸자로 만들어 진다(항목 7 참조)</strong>.</p>
+
+<p>컴파일러가 만들어낸 복사 생성자와 복사 대입 연산자는 원본 객체의 비정적 데이터를 사본 객체로 복사한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">NamedObject</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">NamedObject</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">NamedObject</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">nameValue</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">T</span> <span class="n">objectValue</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 템플릿 클래스 안에는 생성자가 선언되어 있으므로, 컴파일러는 기본 생성자를 만들어 내지 않는다. 반면에 복사 생성자나 복사 대입 연산자는 선언되어 있지 않기 때문에, 이 두 함수의 기본형이 컴파일러에 의해 만들어 진다(물론 필요에 의해서).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">NamedObject</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">no1</span><span class="p">(</span><span class="s">&quot;Smallest Prime Number&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">NamedObject</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">no2</span><span class="p">(</span><span class="n">no1</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>컴파일러는 <code>no1.nameValue</code>와 <code>no1.objectValue</code>를 사용하여 <code>no2.nameValue</code> 및 <code>no2.objectValue</code>를 각각 초기화 한다.</p>
+
+<p><code>nameValue</code>의 타입은 <code>std::string</code>이고, <code>std::string</code>은 자체적으로 복사 생성자를 갖고 있기 때문에 <code>no2.nameValue</code>의 초기화는 <code>std::string</code>의 복사 생성자에 <code>no1.nameValue</code>를 인자로 호출하여 이루어 진다.</p>
+
+<p><code>objectValue</code>의 타입은 템플릿 인스턴스화에 의해 <code>int</code> 형이 되는데, <code>int</code>는 기본 제공 타입이므로 <code>no2.objectValue</code>는 <code>no1.objectValue</code>의 값을 그대로 복사해 오는 것으로 끝난다.</p>
+
+<p>따라서 다음과 같은 기본형의 복사 생성자가 만들어 질 것이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">NamedObject</span><span class="p">(</span><span class="k">const</span> <span class="n">NamedObject</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">:</span> <span class="n">nameValue</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">nameValue</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">objectValue</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">objectValue</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>복사 대입 연산자가 자동 생성되지 않는 경우</h3>
+
+<p>컴파일러가 만들어 주는 복사 대입 연산자도 근본적으로는 복사 생성자와 원리가 똑같다. 그러나 복사 대입 연산자의 자동 생성이 되려면 최종 코드가 &lsquo;적법해야(legal)&rsquo; 하고, &lsquo;이치에 맞아야만(reasonable)&rsquo; 한다. 둘 중 하나라도 만족하지 못하면 컴파일러는 <code>operator=</code> 함수를 만들어내지 않는다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">NamedObject</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// 이 생성자는 이제 상수 타입의 name을 취하지 않는다.</span>
+</span><span class='line'>    <span class="c1">// nameValue가 비상수 string의 참조자가 되었기 때문이다.</span>
+</span><span class='line'>    <span class="c1">// 또한, 참조할 string을 가져야 하기 때문에 char* 는 없애 버렸다.</span>
+</span><span class='line'>    <span class="n">NamedObject</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span> <span class="c1">// operator= 는 선언되지 않았다고 가정</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">nameValue</span><span class="p">;</span> <span class="c1">// 참조자</span>
+</span><span class='line'>    <span class="k">const</span> <span class="n">T</span> <span class="n">objectValue</span><span class="p">;</span> <span class="c1">// 상수</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>자 그럼 다음과 같은 코드에선 어떤 일이 일어날까?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">newDog</span><span class="p">(</span><span class="s">&quot;Persephone&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">oldDog</span><span class="p">(</span><span class="s">&quot;Satch&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NamedObject</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">(</span><span class="n">newDog</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">NamedObject</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">s</span><span class="p">(</span><span class="n">oldDog</span><span class="p">,</span> <span class="mi">36</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">p</span> <span class="o">=</span> <span class="n">s</span><span class="p">;</span> <span class="c1">// p의 데이터 멤버에는 어떤 일이 일어날까?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>C++에서 참조자와 상수는 중간에 변경이 불가능하므로 컴파일이 되지 않는다. 따라서 참조자나 상수 데이터 멤버를 갖고 있는 클래스의 경우, 대입 연산을 지원하기 위해서는 직접 복사 대입 연산자를 정의해 주어야 한다.</p>
+
+<p>추가로 기반 클래스가 복사 대입 연산자를 <code>private</code>으로 선언한 경우, 파생 클래스는 암시적 복사 대입 연산자를 가질 수 없다. 파생 클래스에 대해 컴파일러가 만들어 주는 복사 대입 연산자는 기반 클래스의 복사 대입 연산자를 호출해야 하는데, <code>private</code>으로 되어 있으면 호출할 권한이 없기 때문이다.</p>
+
+<blockquote><ul>
+<li>컴파일러는 경우에 따라 클래스에 대해 기본 생성자, 복사 생성자, 복사 대입 연산자, 소멸자를 암시적으로 만들어 놓을 수 있다.</li>
+</ul>
+</blockquote>
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/effective-c-plus-plus/'>effective c++</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/effective-c-plus-plus-item-5/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-5/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-5/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,362 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[Exceptional C++ Style] Item 1. vector의 올바른 용법과 잘못된 용법 | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[Exceptional C++ Style] Item 1. Vector의 올바른 용법과 잘못된 용법 &lt;난이도 4> 질문 [1] vector&lt;int&gt; v 가 주어졌다고 할 때, 아래의 줄 A와 B의 차이는 무엇일까? 1
+2
+3
+4
+void f( &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[Exceptional C++ Style] Item 1. Vector의 올바른 용법과 잘못된 용법</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:26:14+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <p>&lt;난이도 4></p>
+
+<h3>질문</h3>
+
+<blockquote><p>[1] <code>vector&lt;int&gt; v</code> 가 주어졌다고 할 때, 아래의 줄 A와 B의 차이는 무엇일까?</p></blockquote>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>    <span class="c1">// A</span>
+</span><span class='line'>    <span class="n">v</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// B</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>[2] 다음 코드를 고찰하라.</p></blockquote>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">v</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">assert</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">capacity</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">v</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">assert</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">capacity</span><span class="p">()</span> <span class="o">==</span> <span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+</span><span class='line'><span class="c1">// ...</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">99</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 코드를 비평하라. 스타일과 정확성 모두를 고려할 것.</p>
+
+<h3>해답</h3>
+
+<h4>벡터 요소의 접근</h4>
+
+<p>[1] 번의 질문에서 <code>v</code>가 비어 있지 않다면 A와 B는 아무 차이도 없다. 하지만, <code>v</code>가 비어 있다면 줄 B는 <code>std::out_of_range</code> 예외를 던지는 것이 보장되나, 줄 A에 대해서는 어떠한 규정도 없다.</p>
+
+<p>벡터 안의 요소에 접근하는 방법은 두가지인데, 하나는 <code>vector&lt;T&gt;::at</code>이고, 다른 하나는 <code>vector&lt;T&gt;::operator[]</code>이다. 전자는 범위 점검을 반드시 하도록 규정되어 있고, 후자는 범위 점검이 허용되긴 하나 필수 조건은 아니다. 표준 라이브러리 구현에 따라 다르다.</p>
+
+<p>그러나 일반적으로 <code>operator[]</code>가 범위 점검을 하지 않도록 구현하는 것은 <code>vector</code>가 내장 배열을 대체할 목적으로 나왔기 때문이다. <code>vector</code>는 내장 배열만큼 효율적이어야 하기 때문에 내장 배열의 접근 연산자 <code>[]</code>와 같이 범위 점검을 하지 않는다. 따라서 존재하지 않는 요소에 대한 접근은 <code>미정의 동작</code>이다.</p>
+
+<p>C++의 철학중 <strong>&ldquo;사용하지 않는 것에 대해서는 지불하지 않는다&rdquo;</strong>가 깔린 것이다.</p>
+
+<h4>벡터 키우기</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">v</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">assert</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">capacity</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 단언문은 두 가지 문제점을 가지고 있는데, 첫번째는 이 단언문이 실패할 수 있다는 것이다. <code>reserve</code> 호출에 의해서 <code>vector</code>의 <code>capacity</code>는 적어도 2가 된다. 그러나 이 값이 2보다 클 수도 있다. <code>vector</code>의 크기는 내부적으로 지수적으로 증가하게 되어 있다. 따라서 단언문을 <code>assert(v.capacity() &gt;= 2)</code>와 같이 바꿔주어야 한다. 두번째는 이 단언문이 필요없다는 것인데, <code>reserve</code> 호출이 이미 해당 단언문을 보장해주기 때문이다. 표준 라이브러리를 의심하고 있는 경우가 아니라면 이 단언문은 필요가 없다.</p>
+
+<p>벡터에 값을 집어 넣는 아래의 두줄은 명백한 실수이지만, 표준 라이브러리 구현에 따라서는 아무런 오류를 내지 않을 수 있다는 점에서 찾기 어려운 버그의 원인이 된다.</p>
+
+<p><code>size</code>(<code>resize</code>와 짝을 이룸)와 <code>capacity</code>(<code>reserve</code>와 짝을 이룸) 사이에는 다음과 같은 차이가 존재한다.</p>
+
+<ul>
+<li><p><code>size</code>, <code>resize</code></p>
+
+<ul>
+<li><code>size</code>: 컨테이너 안에 실제로 들어 있는 요소들의 개수</li>
+<li><code>resize</code>: 컨테이너 끝에 요소들을 추가하거나 제거함으로써 컨테이너의 실제 요소 개수를 변경</li>
+<li><code>size</code>는 모든 표준 컨테이너에 존재하지만, <code>resize</code>는 <code>list</code>, <code>vector</code>, <code>deque</code>에만 존재</li>
+</ul>
+</li>
+<li><p><code>capacity</code>, <code>reserve</code></p>
+
+<ul>
+<li><code>capacity</code>: <code>vector</code>가 더 많은 공간을 할당하지 않고도 담을 수 있는 잠재적인 요소들의 개수</li>
+<li><code>reserve</code>: 지정된 공간을 담는 데 필요한 내부 버퍼의 크기를 키움(줄이는 경우는 없음)</li>
+<li> 두 함수 모두 <code>vector</code>에만 존재</li>
+</ul>
+</li>
+</ul>
+
+
+<p>위 예제의 경우, <code>reserve</code>의 호출로 <code>capacity</code>는 2 이상이 되었지만, <code>v</code>에 요소들을 추가하지는 않았기 때문에 실제 요소의 개수는 0 이다. <code>v</code>는 단지 요소들을 담을 공간만을 가지고 있을 뿐이다.</p>
+
+<p><code>operator[]</code>가 요청된 요소를 알아서 추가해주면 좋겠다고 생각하겠지만, 그런 것을 허용한다면 벡터 안에 &ldquo;구멍"들이 생겨버린다. 다음 예를 보자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
+</span><span class='line'><span class="n">v</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">v</span><span class="p">[</span><span class="mi">99</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span> <span class="c1">// 오류이지만 이 논의를 위해 이런 것이 허용된다고 가정하자.</span>
+</span><span class='line'><span class="c1">// v[0..98]에는 무엇이 있을까?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>operator[]</code> 표현은 단지 내부 버퍼의 참조를 돌려줄 뿐이다. 표준 라이브러리는 프로그래머가 잘못된 코드를 쓰지 않을 정도의 지식을 가지고 있다고 가정하기 때문이다. 범위 점검을 수행하길 원한다면 <code>operator[]</code> 대신 <code>v.at(0)</code>을 사용하자.</p>
+
+<p>만일 <code>v.reserve(2)</code> 대신 <code>v.resize(2)</code>를 수행했다면 <code>v[0] = 1; v[1] = 2;</code>는 아무런 문제가 없었을 것이다. 또는 <code>v.push_back(1); v.push_back(2);</code>를 사용하는 경우도 마찬가지다. <code>push_back()</code>은 컨테이너의 끝에 요소들을 항상 안전하게 추가하는 방법이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 루프는 아무것도 출력하지 않는다. <code>v</code>는 여전히 비어있기 때문이다. 이 루프 자체에는 별 오류가 없다. 그러나 코드 리뷰 상으로는 몇가지 스타일상의 문제점들이 존재하는데, 다음과 같다.</p>
+
+<ol>
+<li><p><strong><code>const</code> 정확성을 최대한 지킬 것.</strong>
+반복자는 <code>vector</code>의 내용을 변경하지 않으므로 <code>const_iterator</code>이어야 한다.</p></li>
+<li><p><strong>반복자들을 비교할 때에는 <code>&lt;</code> 대신 <code>!=</code>를 선호할 것.</strong>
+<code>vector&lt;T&gt;::iterator</code>는 임의 접근 반복자이므로, 위의 예에서는 별 문제가 없다. 그러나 <code>&lt;</code>는 임의 접근 반복자에만 작동하는 반면 <code>!=</code>는 다른 종류의 반복자들에게도 작동하므로, <code>&lt;</code>가 반드시 필요한 경우가 아니라면 항상 <code>!=</code>를 사용하는 습관을 들이는 것이 좋다. (또한 <code>!=</code>는 나중에 어떤 이유로 다른 컨테이너로 전환할 때 더 편하다. 예를 들어 <code>std::list</code>의 반복자는 양방향 반복자일 뿐이므로 <code>&lt;</code>를 지원하지 않는다.)</p></li>
+<li><p><strong>후위 <code>--</code>,<code>++</code> 대신 전위 <code>--</code>,<code>++</code>를 선호할 것.</strong>
+루프에서 i의 이전 값이 필요한 경우가 아니라면 항상 <code>i++</code> 대신 <code>++i</code>를 사용하는 습관을 들이자. 다만, <code>v[i++]</code>처럼 <code>i</code>번째 요소에 접근한 후에 루프 카운터를 증가시키는 경우라면 후위 표기가 더 자연스럽다.</p></li>
+<li><p><strong>불필요한 재계산을 피할 것.</strong>
+이 예의 경우 <code>v.end()</code>가 돌려준 값은 루프 도중에 변하지 않으므로, 매 반복마다 컨테이너의 끝을 재계산하는 대신 루프를 시작하기 전에 미리 계산해 두는 게 낫다.</p></li>
+<li><p><strong><code>endl</code> 보다는 <code>'\n'</code>을 선호할 것.</strong>
+<code>endl</code>은 스트림의 내부 출력 버퍼를 비우도록 강제한다. 스트림이 버퍼링되며 매번 버퍼를 밀어낼 필요가 없다면, 루프가 끝났을 때 한번만 비우게 하는 게 프로그램의 성능에 도움이 된다.</p></li>
+<li><p><strong>루프를 직접 작성하기보다는 표준 라이브러리의 copy와 for_each를 재사용할 것. 표준 라이브러리의 기능을 사용하는 것이 쉽고 깔끔하기 때문이다. 다만, 이는 취향의 문제일 수 있다.</strong>
+루프 본체가 단순한 경우라면 <code>copy</code>와 <code>for_each</code> 쪽이 직접 짠 코드보다 가독성이 더 좋을 수 있다. 그러나 루프 본체가 좀 복잡한 경우라면 루프 본체를 함수자(functor)들로 분해해야 하기 때문에 코드가 매우 지저분해질 수 있다(c++11에서는 람다 표현식으로 해결 가능).</p></li>
+</ol>
+
+
+<p>위의 루프는 다음처럼 바꿀 수 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">copy</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">ostream_iterator</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cout</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 코드를 사용했을 때에는 <code>!=</code>, <code>전위 ++</code>, <code>end()</code>, <code>endl</code>에 대한 실수는 애초에 사라진다. 내부적으로 copy 자체가 그런 것들을 처리하기 때문이다. 만약 스트림을 매번 비워야 할 경우는 루프 본체를 직접 짜는 수 밖에 없다.</p>
+
+<p>(c++11에서는 간단하게 <code>const_iterator</code> 문제도 해결할 수 있는 방법이 있는데, <code>cbegin()</code>과 <code>cend()</code>를 사용하면 된다.)</p>
+
+<p>다음으로 출력 코드를 보자.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 결과로 <code>1</code>이 출력될 수도 있다. 이는 프로그램이 잘못된 방식으로 메모리에 뭔가를 썼지만 그게 즉시 문제를 일으키지는 않았기 때문인데, 사실 그게 더 골치 아픈 문제이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">v</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">assert</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">capacity</span><span class="p">()</span> <span class="o">==</span> <span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>앞에서와 마찬가지로 이 단언문 역시 <code>&gt;=</code>를 사용해야 하며, 게다가 불필요하다.
+그리고 <code>v[0]</code>을 출력하면 <code>0</code>이 나온다.</p>
+
+<p><code>reserve(100)</code> 때문에 <code>v</code>의 내부 버퍼가 실제로 재할당 되었다고 가정하자(즉 최초의 <code>reserve(2)</code>가 벡터의 용량을 100 이상으로 증가시키지 않았다고 하자). 그런 경우는 이미 들어있던 요소들만을 새 버퍼에 복사할 것이다. 그런데 <code>v</code>에는 아무 것도 들어있지 않았다. 그래서 새 버퍼는 그냥 정의되지 않은 값(흔히 <code>0</code>)들만 가지게 된다.</p>
+
+<p>이 이후의 코드들도 앞에서 설명한 이유와 마찬가지로 잘못되었으므로 바로 잡아야 한다.</p>
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/exceptional-c-plus-plus-style/'>exceptional c++ style</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/exceptional-c-plus-plus-style-item-1/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/exceptional-c-plus-plus-style-item-1/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/exceptional-c-plus-plus-style-item-1/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>

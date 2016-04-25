@@ -1,0 +1,614 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>[Effective C++] Item 3. 낌새만 보이면 const를 들이대 보자! | chozekun's blog</title>
+	<meta name="author" content="chozekun">
+
+	
+	<meta name="description" content="[Effective C++] Item 3. 낌새만 보이면 Const를 들이대 보자! 포인터와 const const 키워드는 들어갈 수 있겠다 싶은 곳이면 어디든 붙일 수 있다. 포인터 타입에 대해서는 포인터 자체를 상수로, 혹은 포인터가 가리키는 대상을 상수로, &hellip;">
+	
+
+	<link href="/atom.xml" rel="alternate" title="chozekun's blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-76721139-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+	
+</head>
+
+<body>
+	<header id="header" class="inner"><nav><ul>
+  <li><a href="/">Home</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul></nav>
+</header>
+	<div id="content" class="inner"><article class="post"><header>
+  
+  <h1 class="title">[Effective C++] Item 3. 낌새만 보이면 Const를 들이대 보자!</h1>
+  
+  
+
+
+
+
+
+
+
+
+	
+		<time datetime="2016-04-25T13:17:27+09:00">
+			<span class="day"></span><span class="month"></span>
+		</time>
+	
+
+</header>
+<div class="entry-content">
+  
+    <h3>포인터와 <code>const</code></h3>
+
+<p><code>const</code> 키워드는 들어갈 수 있겠다 싶은 곳이면 어디든 붙일 수 있다.</p>
+
+<p>포인터 타입에 대해서는 포인터 자체를 상수로, 혹은 포인터가 가리키는 대상을 상수로, 혹은 둘 다 지정할 수 있고, 아무것도 지정하지 않을 수도 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">char</span> <span class="n">greeting</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;Hello&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span><span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">greeting</span><span class="p">;</span> <span class="c1">// 비상수 포인터, 비상수 데이터</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">greeting</span><span class="p">;</span> <span class="c1">// 비상수 포인터, 상수 데이터</span>
+</span><span class='line'><span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="n">greeting</span><span class="p">;</span> <span class="c1">// 상수 포인터, 비상수 데이터</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="n">greeting</span><span class="p">;</span> <span class="c1">// 상수 포인터, 상수 데이터</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>const</code> 키워드가 <code>*</code>의 왼쪽에 있으면 포인터가 가리키는 대상이 상수,
+<code>const</code>가 <code>*</code>의 오른쪽에 있으면 포인터 자체가 상수이다.</p>
+
+<p><code>const</code>가 <code>*</code>의 양쪽에 다 있으면 포인터가 가리키는 대상 및 포인터가 전부 상수이다.</p>
+
+<p> 포인터가 가리키는 대상을 상수로 만들 때 const 를 사용하는 스타일이 다를 수 있는데,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">void</span> <span class="nf">f1</span><span class="p">(</span><span class="k">const</span> <span class="n">Widget</span> <span class="o">*</span><span class="n">pw</span><span class="p">);</span>
+</span><span class='line'><span class="kt">void</span> <span class="nf">f2</span><span class="p">(</span><span class="n">Widget</span> <span class="k">const</span> <span class="o">*</span><span class="n">pw</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 두 함수의 매개 변수 타입은 동일하다.</p>
+
+<h3>STL과 <code>const</code></h3>
+
+<p>STL 반복자(iterator)는 기본적인 동작 원리가 T* 포인터와 흡사합니다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">;</span>
+</span><span class='line'><span class="c1">// ...</span>
+</span><span class='line'><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">// iter는 T* const 처럼 동작합니다.</span>
+</span><span class='line'><span class="o">*</span><span class="n">iter</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="c1">// OK, iter가 가리키는 대상을 변경한다.</span>
+</span><span class='line'><span class="o">++</span><span class="n">iter</span><span class="p">;</span> <span class="c1">// 에러! iter는 상수</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">cIter</span> <span class="o">=</span> <span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">// cIter는 const T* 처럼 동작합니다.</span>
+</span><span class='line'><span class="o">*</span><span class="n">cIter</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="c1">// 에러! cIter가 가리키는 대상이 상수</span>
+</span><span class='line'><span class="o">++</span><span class="n">cIter</span><span class="p">;</span> <span class="c1">// OK, cIter를 변경한다.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>const</code>의 가장 강력한 용도는 함수 선언에 쓸 경우이다.</p>
+
+<p><code>const</code>는 함수 반환 값, 각각의 매개 변수, 멤버 함수 앞에 붙을 수 있고, 함수 전체에 대해 <code>const</code>의 성질을 붙일 수 있다.</p>
+
+<h3>함수 반환 값을 상수로 만들기</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Rational</span> <span class="p">{</span> <span class="p">...</span> <span class="p">};</span>
+</span><span class='line'><span class="k">const</span> <span class="n">Rational</span> <span class="k">operator</span><span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">Rational</span><span class="o">&amp;</span> <span class="n">lhs</span><span class="p">,</span> <span class="k">const</span> <span class="n">Rational</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>함수의 반환 값이 상수일 때, 다음과 같은 어처구니 없는 실수를 막아준다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">Rational</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">;</span>
+</span><span class='line'><span class="c1">// ...</span>
+</span><span class='line'><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 에러!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위와 같은 경우는 바로 알아챌 수 있겠지만, 다음과 같은 경우는 비교적 많이 일어난다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">=</span> <span class="n">c</span><span class="p">)</span> <span class="p">...</span> <span class="c1">// 타이핑 실수, 원래 비교하려고 했던건데...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위의 코드는 <code>a</code>와 <code>b</code>가 기본 제공 타입이었다면 문법 위반에 걸리는 코드이지만, 사용자 정의 타입이기 때문에 허용된다.</p>
+
+<h3>상수 멤버 함수</h3>
+
+<p>멤버 함수에 붙는 <code>const</code> 키워드는 &ldquo;해당 멤버 함수가 상수 객체에 대해 호출될 함수이다&rdquo; 라는 사실을 알려준다.
+이런 함수가 중요한 이유는 두 가지이다.</p>
+
+<ol>
+<li><p><strong>클래스의 인터페이스를 이해하기가 쉬워짐</strong>: 해당 클래스 객체의 상태를 변화시킬 수 없는 함수는 무엇이며, 변화시킬 수 있는 함수는 무엇인지 클래스 선언만 보고 바로 알 수 있다.</p></li>
+<li><p><strong>해당 클래스의 상수 객체를 사용할 수 있게 해줌</strong>: C++ 프로그램의 실행 성능을 높이는 핵심 기법중의 하나인 &ldquo;상수 객체에 대한 참조자"를 쓰려면, 상수 멤버 함수가 준비되어 있어야 한다.</p></li>
+</ol>
+
+
+<p><code>const</code> 키워드가 있고 없고의 차이만 있는 멤버 함수들은 오버로딩이 가능하다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">TextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// 상수 객체에 대한 operator[]                   _____</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>    <span class="p">{</span> <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">position</span><span class="p">];</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// 비상수 객체에 대한 operator[]</span>
+</span><span class='line'>    <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span> <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">position</span><span class="p">];</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">text</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위 처럼 선언된 <code>TextBlock</code>의 <code>operator[]</code>는 다음과 같이 쓸 수 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">TextBlock</span> <span class="nf">tb</span><span class="p">(</span><span class="s">&quot;Hello&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">tb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// 비상수 멤버 호출</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">const</span> <span class="n">TextBlock</span> <span class="nf">ctb</span><span class="p">(</span><span class="s">&quot;World&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ctb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// 상수 멤버 호출</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위 예제는 이해를 돕기위한 용도가 크고, 실제 프로그램에서 상수 객체가 자주 생기는 경우는 <strong>상수 객체에 대한 포인터 혹은 참조자가 함수의 인자로 전달될 때</strong>이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="k">const</span> <span class="n">TextBlock</span><span class="o">&amp;</span> <span class="n">ctb</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">ctb</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ctb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>또한 상수 객체와 비상수 객체의 쓰임새가 아래처럼 달라질 수 있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">tb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// OK</span>
+</span><span class='line'><span class="n">tb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;x&#39;</span><span class="p">;</span> <span class="c1">// OK</span>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ctb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// OK</span>
+</span><span class='line'><span class="n">ctb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;x&#39;</span><span class="p">;</span> <span class="c1">// 에러!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>상수 객체의 반환 타입이 <code>const char&amp;</code>이기 때문에 넷째줄에서 에러가 발생했다.</p>
+
+<p>비상수 버전의 <code>operator[]</code>는 참조자를 반환해야 한다. 만약 그냥 <code>char</code>를 반환한다면, 다음 문장은 컴파일되지 않는다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">tb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;x&#39;</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>기본 제공 타입을 반환하는 함수의 반환 값을 수정하는 일은 불가능하다. 만약 된다고 해도, <strong>&lsquo;값에 의한 반환&rsquo;</strong>을 수행하는 C++의 특성상 수정되는 값은 <code>tb.text[0]</code>의 사본이지 <code>tb.text[0]</code>의 값이 아니다.</p>
+
+<h3>비트수준 상수성과 논리적 상수성</h3>
+
+<ul>
+<li>비트수준 상수성(물리적 상수성): 멤버 함수가 <code>const</code>이려면 그 객체의 어떤 데이터 멤버(정적 멤버는 제외)도 바꾸지 않아야 함.</li>
+</ul>
+
+
+<p>C++에서 정의하고 있는 상수성도 비트수준 상수성이고, 컴파일러 차원에서 비트수준 상수성을 지키는 것은 매우 쉽지만, 포인터가 가리키는 대상을 변경하는 경우, 컴파일러가 잡아내지 못한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">CTextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// 부적절한(그러나 비트수준 상수성을 지키는 것처럼 보여져서 허용되는) 선언</span>
+</span><span class='line'>    <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>    <span class="p">{</span> <span class="k">return</span> <span class="n">pText</span><span class="p">[</span><span class="n">position</span><span class="p">];</span> <span class="p">}</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">pText</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>operator[]</code> 내부 코드만 보면 <code>pText</code>를 바꿀 수 없다는 것은 확실하다. 그러나 다음과 같은 코드에서는</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">const</span> <span class="n">CTextBlock</span> <span class="nf">cctb</span><span class="p">(</span><span class="s">&quot;Hello&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span><span class="n">pc</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">cctb</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'><span class="o">*</span><span class="n">pc</span> <span class="o">=</span> <span class="sc">&#39;J&#39;</span><span class="p">;</span> <span class="c1">// OK, cctb는 이제 &quot;Jello&quot;라는 값을 가짐</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>상수 객체에 대고 상수 멤버 함수 밖에 호출한 적이 없는데 내부의 값이 변해 버렸다.</p>
+
+<p>논리적 상수성은 이런 황당한 상황을 보완하는 개념으로 나오게 되었다.</p>
+
+<ul>
+<li><strong>논리적 상수성</strong>: 상수 멤버 함수라고 해서 객체를 조금도 바꿀 수 없는 것이 아니라, 일부는 바꿀 수 있되, 사용자측이 알아채지 못하게만 하면 상수 멤버 자격이 있다.</li>
+</ul>
+
+
+<p>예를 들어, 클래스 내부의 캐시 데이터를 업데이트하는 용도가 이런 경우에 해당된다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">CTextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">length</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">pText</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">textLength</span><span class="p">;</span> <span class="c1">// 바로 직전에 계산한(캐시된) 텍스트 길이</span>
+</span><span class='line'>    <span class="kt">bool</span> <span class="n">lengthIsValid</span><span class="p">;</span> <span class="c1">// 이 길이(캐시)가 현재 유효한가?</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">CTextBlock</span><span class="o">::</span><span class="n">length</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">lengthIsValid</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">textLength</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">strlen</span><span class="p">(</span><span class="n">pText</span><span class="p">);</span> <span class="c1">// 에러!</span>
+</span><span class='line'>        <span class="n">lengthIsValid</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="c1">// 에러!</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">textLength</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>위 코드는 효율적인 측면을 고려하여 <code>textLength</code>의 값을 캐시해 놓는다.
+그리고 사용자는 <code>length()</code>가 어떤식으로 구현되어 있던 간에 <code>pText</code>의 값이 변하지 않을 것을 알고 함수를 호출할 것이다.
+이때 이 함수는 논리적 상수성을 지키고 있는 것이다.
+그러나 컴파일러가 비트수준 상수성을 강제하고 있기 때문에 컴파일 에러가 발생한다.
+이를 해결할 방법은 mutable 키워드를 이용하는 것이다.
+이 키워드가 붙은 데이터 멤버는 상수 멤버 함수 안에서도 수정이 가능해진다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">CTextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">length</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">pText</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">mutable</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">textLength</span><span class="p">;</span> <span class="c1">// 바로 직전에 계산한(캐시된) 텍스트 길이</span>
+</span><span class='line'>    <span class="k">mutable</span> <span class="kt">bool</span> <span class="n">lengthIsValid</span><span class="p">;</span> <span class="c1">// 이 길이(캐시)가 현재 유효한가?</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">CTextBlock</span><span class="o">::</span><span class="n">length</span><span class="p">()</span> <span class="k">const</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">lengthIsValid</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">textLength</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">strlen</span><span class="p">(</span><span class="n">pText</span><span class="p">);</span> <span class="c1">// OK</span>
+</span><span class='line'>        <span class="n">lengthIsValid</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="c1">// OK</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">textLength</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>상수 멤버 및 비상수 멤버 함수에서 코드 중복 현상을 피하는 방법</h4>
+
+<p><code>TextBlock::operator[]</code>가 기능이 확장되어(경계 검사, 접근 데이터 로깅, 무결성 검증 등) 코드가 비대해지면, 아무리 개별 함수로 빼낸다 해도 코드 중복이 생길 수 밖에 없다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">TextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// 경계 검사</span>
+</span><span class='line'>        <span class="c1">// 접근 데이터 로깅</span>
+</span><span class='line'>        <span class="c1">// 무결성 검증</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">position</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// 경계 검사</span>
+</span><span class='line'>        <span class="c1">// 접근 데이터 로깅</span>
+</span><span class='line'>        <span class="c1">// 무결성 검증</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">position</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">text</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>코드 중복은 절대악이다. 컴파일 시간, 유지보수 시간, 바이너리 크기 부풀림 등&hellip;
+캐스팅을 써서 위와 같은 코드 중복을 피할 수 있다.
+캐스팅은 기본적으로 피해야할 기법이지만, 코드 중복이 더 해악이므로 캐스팅을 사용한다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">TextBlock</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// 경계 검사</span>
+</span><span class='line'>        <span class="c1">// 접근 데이터 로깅</span>
+</span><span class='line'>        <span class="c1">// 무결성 검증</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">text</span><span class="p">[</span><span class="n">position</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">char</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">position</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span>
+</span><span class='line'>            <span class="k">const_cast</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&amp;&gt;</span><span class="p">(</span>
+</span><span class='line'>                <span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">TextBlock</span><span class="o">&amp;&gt;</span>
+</span><span class='line'>                    <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">position</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">text</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>첫번째 캐스팅인 <code>static_cast</code>는 무한 재귀 호출을 피하기 위해, 즉 상수 버전의 <code>operator[]</code>를 호출하기 위해 사용되었고, 두번째 캐스팅인 <code>const_cast</code>는 결과에서 <code>const</code>를 떼어내기 위해 사용되었다.</p>
+
+<p>물론 C 스타일의 캐스팅을 사용하면 괄호 만으로도 끝나겠지만, <strong>C 스타일의 캐스팅 보다는 C++ 스타일의 캐스팅을 사용해야 한다</strong>(항목 27 참조).</p>
+
+<p>비상수 멤버 함수에서 상수 멤버 함수를 호출하는 이유는 반대로 생각하면 간단해 진다.</p>
+
+<p>만약 <strong>상수 멤버 함수 쪽에서 비상수 멤버 함수 쪽을 호출했다면, 상수 멤버 함수로써는 비트 수준 상수성이 간단하게 깨지게 되는 것</strong>이기 때문이다.</p>
+
+<blockquote><ul>
+<li><code>const</code>를 붙여 선언하면 컴파일러가 사용상의 에러를 잡아내는 데 도움을 준다.</li>
+<li>컴파일러는 비트수준 상수성을 지켜야 하지만, 우리는 논리적인 상수성을 사용하여 프로그래밍해야 한다.</li>
+<li>상수 멤버 함수 및 비상수 멤버 함수가 서로 동일한 기능으로 구현되어 있을 경우, 비상수 버전이 상수 버전을 호출하도록 만들자.</li>
+</ul>
+</blockquote>
+
+    
+      <div class="sharing">
+	<div class="addthis_toolbox addthis_default_style ">
+	
+	
+	<a class="addthis_button_tweet"></a>
+	
+	
+	<a class="addthis_counter addthis_pill_style"></a>
+	</div>
+	<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4daee9911f9dfcb4"></script>
+</div>
+    
+  
+  
+  <footer class="meta">
+    
+
+
+
+	<div class="tags"><a class='category' href='/blog/categories/c-plus-plus/'>c++</a><a class='category' href='/blog/categories/effective-c-plus-plus/'>effective c++</a></div>
+
+    
+      
+      
+      <a class="comment" href="/blog/2016/04/25/effective-c-plus-plus-item-3/#disqus_thread">Comments</a>
+      
+    
+  </footer>
+  
+</div>
+
+<section id="comment">
+	<div id="disqus_thread" aria-live="polite">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> 
+  </div>
+</section>
+</article></div>
+	<footer id="footer" class="inner"><div class="social alignright">
+	
+	
+	
+	
+	<a class="github" href="https://github.com/chozekun" title="GitHub">GitHub</a>
+	
+	
+	<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+</div>
+<p>&copy; 2016 chozekun</p>
+<div class="clearfix"></div></footer>
+	<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+	(function($){
+		$('.entry-content').each(function(i){
+			var _i = i;
+			$(this).find('img').each(function(){
+				var alt = $(this).attr('alt');
+
+				if (alt == '' || typeof alt == 'undefined'){
+					$(this).wrap('<a href="'+$(this).attr('src')+'" class="fancybox" rel="gallery'+_i+'" />');
+				} else {
+					$(this).after('<span class="caption">'+alt+'</span>').wrap('<a href="'+$(this).attr('src')+'" class="fancybox" title="'+alt+'" rel="gallery'+_i+'" />');
+				}
+			});
+		});
+		$('.fancybox').fancybox();
+	})(jQuery);
+</script>
+<div id="phasebeam">
+	<canvas></canvas>
+	<canvas></canvas>
+	<canvas></canvas>
+</div>
+<script src="/javascripts/phasebeam.js"></script>
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'chozekun';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-3/';
+        var disqus_url = 'http://chozekun.github.io/blog/2016/04/25/effective-c-plus-plus-item-3/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+</body>
+</html>
